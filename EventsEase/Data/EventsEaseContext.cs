@@ -9,6 +9,8 @@ namespace EventsEase.Data
 {
     public class EventsEaseContext : DbContext
     {
+        internal object BookingDetailsView;
+
         public EventsEaseContext (DbContextOptions<EventsEaseContext> options)
             : base(options)
         {

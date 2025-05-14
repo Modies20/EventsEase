@@ -43,5 +43,19 @@
             </td>
         </tr>
 }
+		<tr>
+			<td>
+                colspan="4">
+				<form asp-action="UploadImage" enctype="multipart/form-data">
+					<input type="file" name="file" />
+					<button type="submit">Upload</button>
+				</form>
+			</td>
+
+            <form method="get">
+                <input type="text" name="searchTerm" placeholder="Search by Booking ID or Event Name" />
+                <button type="submit">Search</button>
+            </form>
     </tbody>
 </table>
+

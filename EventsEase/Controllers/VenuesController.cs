@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EventsEase.Data;
 using EventsEase.Models;
+using Azure.Storage.Blobs;
 
 namespace EventsEase.Controllers
 {
@@ -152,6 +153,50 @@ namespace EventsEase.Controllers
         private bool VenueExists(int id)
         {
             return _context.Venue.Any(e => e.VenueId == id);
+        }
+
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            var connectionString = "DefaultEndpointsProtocol=https;AccountName=datastoragest10449316;AccountKey=7sMN0weWFqY7FLPr7wkyXtXvwDJExfM3c9aD9RKhriRqH7HtVpQFIRvvzYaiDy6hzxiLdqJ/OG9n+AStLjJeKg==;EndpointSuffix=core.windows.net";
+            var containerName = "st10449316";
+
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await containerClient.CreateIfNotExistsAsync();
+
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+
+            using (var stream = file.OpenReadStream())
+            {
+                await blobClient.UploadAsync(stream, true);
+            }
+
+            var imageUrl = blobClient.Uri.AbsoluteUri;
+
+           
+            _context.Venue.Add(new Venue { ImageUrl = imageUrl, Name = "Default Name" });
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+        public IActionResult Delete(int id)
+        {
+            var venue = _context.Venue.Include(v => v.Bookings).FirstOrDefault(v => v.VenueId == id);
+            if (venue == null)
+            {
+                return NotFound();
+            }
+
+            if (venue.Bookings.Any())
+            {
+                TempData["Error"] = "Cannot delete a venue with active bookings.";
+                return RedirectToAction("Index");
+            }
+
+            _context.Venue.Remove(venue);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
     }
 }

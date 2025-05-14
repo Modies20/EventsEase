@@ -166,5 +166,46 @@ namespace EventsEase.Controllers
         {
             return _context.Booking.Any(e => e.BookingId == id);
         }
+
+
+        private bool IsVenueAvailable(int venueId, DateTime date, TimeSpan time)
+        {
+            return !_context.Booking.Any(b =>
+                b.VenueId == venueId &&
+                b.Date == date.Date &&
+                b.Time == time);
+        }
+
+        [HttpPost]
+        public IActionResult BookingCreate(Booking booking)
+        {
+            if (!IsVenueAvailable(booking.VenueId, booking.Date, booking.Time))
+            {
+                ModelState.AddModelError("", "This venue is already booked for the selected date and time.");
+                return View(booking);
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(booking);
+                _context.SaveChanges();
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(booking);
+        }
+
+        public IActionResult Index(string searchTerm)
+        {
+            var bookings = _context.Booking.Include(b => b.Event).Include(b => b.Venue).AsQueryable();
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                bookings = bookings.Where(b =>
+                    b.BookingId.ToString().Contains(searchTerm) ||
+                    (b.Event != null && b.Event.EventName.Contains(searchTerm)) 
+                );
+            }
+            return View(bookings.ToList());
+        }
     }
 }

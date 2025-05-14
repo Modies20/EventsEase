@@ -4,6 +4,8 @@ namespace EventsEase.Models
 {
     public class Booking
     {
+        internal readonly TimeSpan Time;
+
         [Key]
         public int BookingId { get; set; }
         public int VenueId { get; set; }
@@ -14,7 +16,9 @@ namespace EventsEase.Models
         public DateTime EndDateTime { get; set; }
 
         // Navigation properties
-        public Venue Venue { get; set; }
-        public Event Event { get; set; }
+        public Venue? Venue { get; set; }
+        public Event? Event { get; set; }
+
+        public DateTime Date => StartDateTime.Date;
     }
 }
