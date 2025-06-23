@@ -26,7 +26,7 @@ namespace EventsEase.Controllers
             return View(await eventsEaseContext.ToListAsync());
         }
 
-        // GET: Bookings/Details/5
+        // Fix for the CS1061 error in the 'Details' method
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,8 +35,8 @@ namespace EventsEase.Controllers
             }
 
             var booking = await _context.Booking
-                .Include(b => b.Event)
-                .Include(b => b.Venue)
+                .Include(b => b.Event) // Ensure 'Event' is a navigational property in the Booking entity
+                .Include(b => b.Venue) // Ensure 'Venue' is a navigational property in the Booking entity
                 .FirstOrDefaultAsync(m => m.BookingId == id);
             if (booking == null)
             {
@@ -55,8 +55,7 @@ namespace EventsEase.Controllers
         }
 
         // POST: Bookings/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BookingId,VenueId,EventId,StartDateTime,EndDateTime")] Booking booking)
@@ -195,17 +194,9 @@ namespace EventsEase.Controllers
             return View(booking);
         }
 
-        public IActionResult Index(string searchTerm)
-        {
-            var bookings = _context.Booking.Include(b => b.Event).Include(b => b.Venue).AsQueryable();
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                bookings = bookings.Where(b =>
-                    b.BookingId.ToString().Contains(searchTerm) ||
-                    (b.Event != null && b.Event.EventName.Contains(searchTerm)) 
-                );
-            }
-            return View(bookings.ToList());
-        }
+ 
     }
+
+
+
 }

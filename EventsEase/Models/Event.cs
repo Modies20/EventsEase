@@ -11,5 +11,7 @@ namespace EventsEase.Models
         public string Description { get; set; }
 
         public ICollection<Booking> Bookings { get; set; }
+        public int EventTypeId { get; set; }
+        public EventType EventType { get; set; }
     }
 }

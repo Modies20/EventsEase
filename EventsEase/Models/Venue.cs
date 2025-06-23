@@ -19,5 +19,7 @@ namespace EventsEase.Models
 
         [Required(ErrorMessage = "Venue name is required.")]
         public required string Name { get; set; }
+
+        public bool IsAvailable { get; set; }
     }
 }
